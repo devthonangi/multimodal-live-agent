@@ -1,0 +1,6 @@
+torch==2.2.0
+opencv-python
+ultralytics
+transformers
+diffusers
+numpy<2
