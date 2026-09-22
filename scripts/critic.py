@@ -1,23 +1,11 @@
-# critic.py
 class Critic:
-    """Simple critic to validate and refine reasoning"""
-    def evaluate(self, reasoning, detected_objects):
-        if not detected_objects:
-            return reasoning
+    """Keeps captions safe for rendering without changing detector facts."""
 
-        # Correct obvious overcounting (example heuristic)
-        corrected_phrases = []
-        for phrase in reasoning.split(","):
-            for obj in detected_objects:
-                if obj in phrase:
-                    corrected_phrases.append(f"1 {obj}(s)")
-        corrected_phrases = list(dict.fromkeys(corrected_phrases))  # remove duplicates
+    def __init__(self, max_length=180):
+        self.max_length = max_length
 
-        final_caption = "Scene contains: " + ", ".join(corrected_phrases)
-
-        # Keep temporal/motion info if present
-        if "|" in reasoning:
-            temporal_info = " | ".join(reasoning.split("|")[1:])
-            final_caption += " | " + temporal_info
-
-        return final_caption
+    def evaluate(self, reasoning, detected_objects=None):
+        caption = " ".join(reasoning.split())
+        if len(caption) <= self.max_length:
+            return caption
+        return caption[: self.max_length - 1].rstrip() + "…"

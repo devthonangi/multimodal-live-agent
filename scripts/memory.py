@@ -1,18 +1,26 @@
-# memory.py
+from collections import Counter, deque
+
+
 class Memory:
+    """Bounded scene history with current and recent object summaries."""
+
     def __init__(self, window=5):
+        if window < 1:
+            raise ValueError("window must be at least 1")
         self.window = window
-        self.history = []
+        self.history = deque(maxlen=window)
 
     def update(self, objects, frame_index):
-        self.history.append({"frame": frame_index, "objects": list(set(objects))})
-        if len(self.history) > self.window:
-            self.history.pop(0)
+        self.history.append({"frame": frame_index, "objects": list(objects)})
 
     def summary(self):
-        if not self.history:
-            return []
-        return self.history[-1]["objects"]
+        return list(self.history[-1]["objects"]) if self.history else []
+
+    def counts(self):
+        return Counter(self.summary())
+
+    def recent_objects(self):
+        return sorted({obj for item in self.history for obj in item["objects"]})
 
     def full_summary(self):
-        return self.history
+        return list(self.history)
